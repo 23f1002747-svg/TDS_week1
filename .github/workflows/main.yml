@@ -1,0 +1,49 @@
+name: Multi-Platform Matrix Build (4e7c3c9)
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    name: Build on ${{ matrix.os }} with Node v${{ matrix.node }}
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      # 👇 This creates a true matrix of 3 variants (OS × Node)
+      matrix:
+        include:
+          - os: ubuntu-latest
+            node: 14
+          - os: macos-latest
+            node: 16
+          - os: windows-latest
+            node: 18
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # ✅ Identifier step (required)
+      - name: matrix-4e7c3c9
+        run: echo "Building for OS=${{ matrix.os }}, Node=${{ matrix.node }}"
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+
+      - name: Generate build artifact
+        run: |
+          echo "Build output for OS=${{ matrix.os }} Node=${{ matrix.node }}" > build-${{ matrix.os }}-${{ matrix.node }}.txt
+          echo "Timestamp: $(date)" >> build-${{ matrix.os }}-${{ matrix.node }}.txt
+          echo "System Info:" >> build-${{ matrix.os }}-${{ matrix.node }}.txt
+          uname -a || ver >> build-${{ matrix.os }}-${{ matrix.node }}.txt
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-4e7c3c9-${{ matrix.os }}-node${{ matrix.node }}
+          path: build-${{ matrix.os }}-${{ matrix.node }}.txt
